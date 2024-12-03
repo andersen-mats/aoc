@@ -26,7 +26,7 @@ class Main {
             int m = 1;
 
             if (lines[i][n] < lines[i][m]) {
-                while (lines[i][n] < lines[i][m] && (1 <= (lines[i][m] - lines[i][n]) && 3 >= (lines[i][m] - lines[i][n])) && m < lines[i].length) {
+                while (lines[i][n] < lines[i][m] && (1 <= (lines[i][m] - lines[i][n]) && 3 >= (lines[i][m] - lines[i][n]))) {
                     if (m == lines[i].length - 1) {
                         tot++;
                         break;
@@ -36,7 +36,7 @@ class Main {
                 }
 
             } else if (lines[i][n] > lines[i][m]) {
-                while (lines[i][n] > lines[i][m] && ((1 <= lines[i][n] - lines[i][m]) && 3 >= (lines[i][n] - lines[i][m])) && m < lines[i].length) {
+                while (lines[i][n] > lines[i][m] && ((1 <= lines[i][n] - lines[i][m]) && 3 >= (lines[i][n] - lines[i][m]))) {
                     if (m == lines[i].length - 1) {
                         tot++;
                         break;
