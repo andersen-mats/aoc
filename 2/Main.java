@@ -22,31 +22,40 @@ class Main {
         }
 
         for (int i = 0; i < lines.length; i++) {
-            int n = 0;
-            int m = 1;
+            if (Safe.check(lines[i])) {
+                tot++;
+            }
+        }
+        System.out.println("First half: " + tot);
 
-            if (lines[i][n] < lines[i][m]) {
-                while (lines[i][n] < lines[i][m] && (1 <= (lines[i][m] - lines[i][n]) && 3 >= (lines[i][m] - lines[i][n]))) {
-                    if (m == lines[i].length - 1) {
+        tot = 0;
+
+        for (int i = 0; i < lines.length; i++) {
+            if (Safe.check(lines[i])) {
+                tot++;
+            } else {
+                for (int k = 0; k < lines[i].length; k++) {
+                    ArrayList<Integer> templ = new ArrayList<>();
+                    int[] tempa = new int[lines[i].length - 1];
+                    for (int j = 0; j < lines[i].length; j++) {
+                        if (j==k) {
+                            continue;
+                        }
+                        templ.add(lines[i][j]);
+                    }
+
+                    for (int n = 0; n < templ.size(); n++) {
+                        tempa[n] = templ.get(n);
+                    }
+
+                    if (Safe.check(tempa)) {
                         tot++;
                         break;
                     }
-                    n++;
-                    m++;
-                }
-
-            } else if (lines[i][n] > lines[i][m]) {
-                while (lines[i][n] > lines[i][m] && ((1 <= lines[i][n] - lines[i][m]) && 3 >= (lines[i][n] - lines[i][m]))) {
-                    if (m == lines[i].length - 1) {
-                        tot++;
-                        break;
-                    }
-                    n++;
-                    m++;
                 }
             }
         }
-        System.out.println(tot);
+        System.out.println("Second half: " + tot);
     }
 }
                                             
