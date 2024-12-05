@@ -1,170 +1,184 @@
 import java.io.File;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 class Main {
     public static void main(String[] args) throws Exception {
         File file = new File("data.txt");
         Scanner scanner = new Scanner(file);
-        String line;
-        char[][] grid = new char[140][];
         char[] word = {'X', 'M', 'A', 'S'};
         int tot = 0;
-        
-        int l = 0;
+
+        ArrayList<char[]> tmpArrayList = new ArrayList<>();
         while (scanner.hasNextLine()) {
-            line = scanner.nextLine();
-            line = line.replace("\n", "").replace("\r", "");
-            int length = 0;
-            for (int i = 0; i < line.length(); i++) {
-                length++;
-            }
+            tmpArrayList.add(scanner.nextLine().toCharArray());
+        }
+        scanner.close();
 
-            char[] temp = new char[length];
-            for (int i = 0; i < line.length(); i++) {
-                temp[i] = line.charAt(i);
-            }
-
-            grid[l] = temp;
-            l++;
+        int rows = tmpArrayList.size();
+        int cols = tmpArrayList.get(0).length;
+        char[][] grid = new char[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            grid[i] = tmpArrayList.get(i);
         }
 
-        // left to right horizontally
-        for (char[] y : grid) {
-            int i = 0;
-            for (char x : y) {
-                if (x == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-        }
+        tot += searchHor(grid, word);
+        tot += searchHor(reverse(grid), word);
+        tot += searchVert(grid, word);
+        tot += searchVert(flip(grid), word);
+        tot += searchDiagRight(grid, word);
+        tot += searchDiagLeft(grid, word);
+        tot += searchDiagRight(reverse(flip(grid)), word);
+        tot += searchDiagLeft(reverse(flip(grid)), word);
 
-        // right to left horizontally
-        for (char[] y : grid) {
-            int i = 0;
-            for (int j = y.length - 1; j > 0; j--) {
-                if (y[j] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot ++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-        }
-
-        // downwards
-        for (int n = 0; n < grid[0].length; n++) {
-            int i = 0;
-            for (int m = 0; m < grid.length; m++) {
-                if (grid[n][m] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-        }
-        
-        // upwards
-        for (int n = 0; n < grid[0].length; n++) {
-            int i = 0;
-            for (int m = grid.length - 1; m > 0; m--) {
-                if (grid[n][m] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-        }
-
-        // diag down from left to rigth
-        int i = 0;
-        int x = 0;
-        while (x < grid.length) {
-            for (int y = 0; y < grid.length; y = y + 1 + x) {
-                if (grid[y][y] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-            x++;
-        }
-
-        // diag down from right to left
-        i = 0;
-        x = 0;
-        while (x < grid.length) {
-            for (int y = grid.length - 1; y > 0; y = y - 1 - x) {
-                if (grid[y][y] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-            x++;
-        }
-
-        // diag up from left to right
-        i = 0;
-        x = 0;
-        while (x < grid.length) {
-            for (int y = 0; y < grid.length; y = y + 1 + x) {
-                if (grid[139 - y][y] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-            x++;
-        }
-
-
-        // diag up from right to left
-        i = 0;
-        x = 0;
-        while (x < grid.length) {
-            for (int y = 0; y > 0; y = y - 1 - x) {
-                if (grid[139 - y][y] == word[i]) {
-                    i++;
-                    if (i == 4) {
-                        i = 0;
-                        tot++;
-                    }
-                } else {
-                    i = 0;
-                }
-            }
-            x++;
-        }
-        
         System.out.println(tot);
+    }
+
+    static char[][] reverse(char[][] grid) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        char[][] ret = new char[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                ret[i][j] = grid[i][cols - j - 1];
+            }
+        }
+        return ret;
+    }
+
+    static char[][] flip(char[][] grid) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        char[][] ret = new char[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            ret[i] = grid[rows - i - 1];
+        }
+        return ret;
+    }
+
+    static int searchDiagRight(char[][] grid, char[] word) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int wordLength = word.length;
+        int count = 0;
+
+        for (int col = 0; col <= cols - wordLength; col++) {
+            int match = 0;
+            for (int i = 0; i < Math.min(rows, cols - col); i++) {
+                if (grid[i][col + i] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0;
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+
+        for (int row = 1; row <= rows - wordLength; row++) {
+            int match = 0;
+            for (int i = 0; i < Math.min(rows - row, cols); i++) {
+                if (grid[row + i][i] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0;
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    static int searchDiagLeft(char[][] grid, char[] word) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int wordLength = word.length;
+        int count = 0;
+
+        for (int col = wordLength - 1; col < cols; col++) {
+            int match = 0;
+            for (int i = 0; i < Math.min(rows, col + 1); i++) {
+                if (grid[i][col - i] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0; 
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+
+        for (int row = 1; row <= rows - wordLength; row++) {
+            int match = 0;
+            for (int i = 0; i < Math.min(rows - row, cols); i++) {
+                if (grid[row + i][cols - i - 1] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0;
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    static int searchVert(char[][] grid, char[] word) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int wordLength = word.length;
+        int count = 0;
+
+        for (int col = 0; col < cols; col++) {
+            int match = 0;
+            for (int row = 0; row < rows; row++) {
+                if (grid[row][col] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0;
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+        return count;
+    }
+
+    static int searchHor(char[][] grid, char[] word) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int wordLength = word.length;
+        int count = 0;
+
+        for (int row = 0; row < rows; row++) {
+            int match = 0;
+            for (int col = 0; col < cols; col++) {
+                if (grid[row][col] == word[match]) {
+                    match++;
+                    if (match == wordLength) {
+                        count++;
+                        match = 0;
+                    }
+                } else {
+                    match = 0;
+                }
+            }
+        }
+        return count;
     }
 }
